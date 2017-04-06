@@ -1,0 +1,12 @@
+{
+  "host": "10.52.50.83",
+  "port": 3030,
+  "nedb": "../data/",
+  "public": "../public/",
+  "auth": {
+    "token": {
+      "secret": "Ub4iK2Ifpi6FnpvqTzMK8FDGB8MWwoOMrsKeAKmGPXGCJfjAlXRm5Y8ahfzn9yu8e9D0tCnkkVyUsx9QMSY20w=="
+    },
+    "local": {}
+  }
+}
