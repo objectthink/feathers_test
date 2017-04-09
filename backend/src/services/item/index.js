@@ -3,6 +3,7 @@
 const hooks = require('./hooks');
 
 var instrumentInfoDict = {};
+var instrumentAdvertisementDict = {};
 
 //var instrumentInfoArray = [];
 
@@ -90,8 +91,12 @@ module.exports = function(){
   // Simple Subscriber
   nats.subscribe('heartbeat', function(msg) {
 
+    //update advertisement reciept
+    instrumentAdvertisementDict[msg] = new Date();
+
     if( !(msg in instrumentInfoDict))
     {
+
       instrumentInfoDict[msg] = {
         mac:msg,
         serialnumber:"serialnumber",
@@ -164,7 +169,37 @@ module.exports = function(){
       /////////////////
     }
   });
+
+  //remove stale heartbeats
+  function staleAdvertisementCheck() {
+
+    setTimeout(function()
+    {
+      var now = new Date();
+
+      for (var mac in instrumentAdvertisementDict) {
+
+        console.log(mac);
+        console.log(now - instrumentAdvertisementDict[mac]);
+
+        if( (now - instrumentAdvertisementDict[mac]) > 2000)
+        {
+          //remove stale advertisement
+          console.log('removing stale heartbeat:' + mac);
+
+          delete instrumentAdvertisementDict[mac];
+          delete instrumentInfoDict[mac];
+
+          itemService.remove(mac);
+        }
+      }
+      staleAdvertisementCheck();
+    },
+    1000);
+  }
+
   //////////////
+  staleAdvertisementCheck();
 };
 
 

@@ -57,7 +57,7 @@ class Home extends Component {
           <div className="description">
             {item.mac}
           </div>
-          <div class="summary">
+          <div className="summary">
              <a>{item.runState}</a>
           </div>
         </div>

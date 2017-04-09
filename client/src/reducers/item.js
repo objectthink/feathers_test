@@ -30,7 +30,7 @@ function handleItems(state = {
 
     case 'REMOVED_ITEM':
       return {
-        all: state.all.filter((item) => item.id !== action.item.id)
+        all: state.all.filter((item) => item.mac !== action.item.id)
       }
 
     default:
