@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { List } from 'semantic-ui-react'
+import { List, Button, Card, Image } from 'semantic-ui-react'
 import { socketApp } from '../store';
+import InstrumentImage from './instrument.png'
+import Main from './Main'
 
 class Home extends Component {
 
@@ -16,24 +18,6 @@ class Home extends Component {
 
     this.listItem = this.listItem.bind(this);
     this.onClickReset = this.onClickReset.bind(this);
-  }
-
-  handleKeyDown(e) {
-    // enter key
-    if (e.keyCode !== 13) {
-      return;
-    }
-
-		e.preventDefault();
-
-    const text = this.state.text.trim();
-    if (text) {
-      this.props.createItem({
-        text,
-        complete: false
-      });
-      this.setState({text: ''});
-    }
   }
 
 //  <div class="summary">
@@ -84,7 +68,8 @@ class Home extends Component {
   //  Reset
   //</button>
 
-  renderCardsList() {
+  renderCardsList()
+  {
     try {
 
       //console.log(this.props);
@@ -98,13 +83,14 @@ class Home extends Component {
           </div>
         </div>
       );
-
     }
-    catch (e) {
+    catch (e)
+    {
 
       console.log(e);
     }
-    finally {
+    finally
+    {
     }
 
   }
@@ -150,14 +136,86 @@ class Home extends Component {
   }
  /////////////////////////////////////////////////////////////////////////////
 
- render() {
+ //SEMANTIC UI REACT CARDS list
+ listReactCardItem(item) {
+   return (
+
+     <Card key={item.mac}>
+       <Card.Content>
+         <Image floated='right' size='mini' src={InstrumentImage} />
+         <Card.Header>
+           {item.serialnumber}
+         </Card.Header>
+
+         <Card.Description>
+           {item.location}
+         </Card.Description>
+
+         <Card.Description>
+           {item.mac}
+         </Card.Description>
+
+         <Card.Meta>
+            <a>{item.runState}</a>
+         </Card.Meta>
+
+       </Card.Content>
+
+       <div className="ui bottom attached button">
+         <i className="info icon"></i>
+           More...
+       </div>
+
+     </Card>
+   );
+ }
+
+ renderReactCardsList()
+ {
    try {
 
      //console.log(this.props);
      //console.log(this.props.items);
      console.log(this.props.items.all);
 
-     return this.renderCardsList();
+     return (
+       <Card.Group>
+         {this.props.items.all.map(this.listReactCardItem)}
+       </Card.Group>
+     );
+   }
+   catch (e)
+   {
+
+     console.log(e);
+   }
+   finally
+   {
+   }
+
+ }
+ /////////////////////////////////////////////////////////////////////////////
+
+ render() {
+   try {
+
+     //console.log(this.props);
+     //console.log(this.props.items);
+
+     console.log(this.props.items.all);
+
+     console.log(this.props.activeItem)
+
+     return this.renderReactCardsList();
+
+     //if(this.props.activeItem === 'cardview')
+     //{
+    //  return this.renderCardsList();
+     //}
+     //else
+     //{
+    //   return this.renderList();
+     //}
 
    }
    catch (e) {
