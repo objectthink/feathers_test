@@ -98,7 +98,7 @@ module.exports = function(){
     {
 
       console.log(msg);
-      
+
       instrumentInfoDict[msg] = {
         mac:msg,
         serialnumber:"serialnumber",
@@ -179,6 +179,14 @@ module.exports = function(){
 
       nats.subscribe(msg + '.runstate', function(runstate) {
         console.log(runstate);
+
+        instrumentInfoDict[msg] = {
+          mac:msg,
+          serialnumber:instrumentInfoDict[msg].serialnumber,
+          location:instrumentInfoDict[msg].location,
+          runState:response
+        };
+
         itemService.update(
           msg,
           {
