@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { List, Button, Card, Image } from 'semantic-ui-react'
+import { List, Button, Card, Image, Header, Container } from 'semantic-ui-react'
 import { socketApp } from '../store';
 import InstrumentImage from './instrument.png'
 import Main from './Main'
@@ -13,11 +13,15 @@ class Home extends Component {
     this.props.findAllItems();
 
     this.state = {
-      text: ''
+      text: '',
+      selectedItem: 'NONE'
     }
 
     this.listItem = this.listItem.bind(this);
     this.onClickReset = this.onClickReset.bind(this);
+    this.listReactCardItem = this.listReactCardItem.bind(this);
+
+    //this.onClickMore = this.onClickMore.bind(this);
   }
 
 //  <div class="summary">
@@ -136,13 +140,17 @@ class Home extends Component {
   }
  /////////////////////////////////////////////////////////////////////////////
 
+ onClickMore = () => {
+
+ }
+
  //SEMANTIC UI REACT CARDS list
  listReactCardItem(item) {
    return (
 
-     <Card key={item.mac}>
+     <Card key={item.mac} >
        <Card.Content>
-         <Image floated='right' size='mini' src={InstrumentImage} />
+         <Image floated='right' size='tiny' src={InstrumentImage} />
          <Card.Header>
            {item.serialnumber}
          </Card.Header>
@@ -161,10 +169,16 @@ class Home extends Component {
 
        </Card.Content>
 
-       <div className="ui bottom attached button">
-         <i className="info icon"></i>
+       <Button onClick={ ()=>
+           {
+              console.log('click! ' + item.mac)
+              this.setState({selectedItem: item})
+           }
+         }>
+         <i className="info icon" ></i>
            More...
-       </div>
+       </Button>
+
 
      </Card>
    );
@@ -196,17 +210,46 @@ class Home extends Component {
  }
  /////////////////////////////////////////////////////////////////////////////
 
+ //instrument page
+ renderInstrumentPage()
+ {
+    return (
+      <Container>
+        <Header>
+          {this.state.selectedItem.serialnumber}
+        </Header>
+        <Button onClick= {()=>
+            {
+               console.log('click! ')
+               this.setState({selectedItem: 'NONE'})
+            }
+          }>
+          Back
+        </Button>
+      </Container>
+    );
+ }
+ ////////////////////////////////////////////////////////////////////////////
+
  render() {
    try {
 
      //console.log(this.props);
      //console.log(this.props.items);
 
-     console.log(this.props.items.all);
+     //console.log(this.props.items.all);
 
-     console.log(this.props.activeItem)
+     //console.log(this.props.activeItem)
 
-     return this.renderReactCardsList();
+     console.log('render called!');
+     console.log(this.state.selectedItem);
+
+     if(this.state.selectedItem !== 'NONE'){
+       return this.renderInstrumentPage();
+     }
+     else {
+       return this.renderReactCardsList();
+     }
 
      //if(this.props.activeItem === 'cardview')
      //{
