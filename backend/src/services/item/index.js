@@ -97,6 +97,8 @@ module.exports = function(){
     if( !(msg in instrumentInfoDict))
     {
 
+      console.log(msg);
+      
       instrumentInfoDict[msg] = {
         mac:msg,
         serialnumber:"serialnumber",
@@ -152,17 +154,38 @@ module.exports = function(){
             location:instrumentInfoDict[msg].location,
             runState:instrumentInfoDict[msg].runState
           });
+      });
 
-          nats.subscribe(msg + '.runstate', function(runstate) {
-            console.log(runstate);
-            itemService.update(
-              msg,
-              {
-                mac:msg,
-                serialnumber:instrumentInfoDict[msg].serialnumber,
-                location:instrumentInfoDict[msg].location,
-                runState:runstate
-              });
+      //fecth run state
+      nats.request(msg + '.get', 'run state', {'max':1}, function(response) {
+        console.log('run state: ' + response);
+
+        instrumentInfoDict[msg] = {
+          mac:msg,
+          serialnumber:instrumentInfoDict[msg].serialnumber,
+          location:instrumentInfoDict[msg].location,
+          runState:response
+        };
+
+        itemService.update(
+          msg,
+          {
+            mac:msg,
+            serialnumber:instrumentInfoDict[msg].serialnumber,
+            location:instrumentInfoDict[msg].location,
+            runState:response
+          });
+      });
+
+      nats.subscribe(msg + '.runstate', function(runstate) {
+        console.log(runstate);
+        itemService.update(
+          msg,
+          {
+            mac:msg,
+            serialnumber:instrumentInfoDict[msg].serialnumber,
+            location:instrumentInfoDict[msg].location,
+            runState:runstate
           });
       });
 
@@ -179,8 +202,8 @@ module.exports = function(){
 
       for (var mac in instrumentAdvertisementDict) {
 
-        console.log(mac);
-        console.log(now - instrumentAdvertisementDict[mac]);
+        //console.log(mac);
+        //console.log(now - instrumentAdvertisementDict[mac]);
 
         if( (now - instrumentAdvertisementDict[mac]) > 2000)
         {
