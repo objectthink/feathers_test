@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { List, Button, Card, Image, Header, Container } from 'semantic-ui-react'
+import { List, Button, Card, Image, Header, Container, Label } from 'semantic-ui-react'
 import { socketApp } from '../store';
 import InstrumentImage from './instrument.png'
 import Main from './Main'
@@ -144,8 +144,30 @@ class Home extends Component {
 
  }
 
+ //<Card.Meta>
+ //  <a>{item.runState}</a>
+ //</Card.Meta>
+
  //SEMANTIC UI REACT CARDS list
  listReactCardItem(item) {
+
+   console.log(item.runState);
+
+   var labelColor = 'red';
+
+   if(item.runState === 'Idle'){
+     labelColor = 'green';
+   }
+
+   if(item.runState === 'Pretest'){
+     labelColor = 'yellow';
+   }
+
+   if(item.runState === 'Post Test'){
+     labelColor = 'yellow';
+   }
+
+
    return (
 
      <Card key={item.mac} >
@@ -163,9 +185,9 @@ class Home extends Component {
            {item.mac}
          </Card.Description>
 
-         <Card.Meta>
-            <a>{item.runState}</a>
-         </Card.Meta>
+         <Label color={labelColor}>
+            {item.runState}
+         </Label>
 
        </Card.Content>
 
