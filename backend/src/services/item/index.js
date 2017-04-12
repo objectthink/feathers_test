@@ -184,7 +184,7 @@ module.exports = function(){
           mac:msg,
           serialnumber:instrumentInfoDict[msg].serialnumber,
           location:instrumentInfoDict[msg].location,
-          runState:response
+          runState:runstate
         };
 
         itemService.update(
