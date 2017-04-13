@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { List, Button, Card, Image, Header, Container, Label } from 'semantic-ui-react'
+import { List, Button, Card, Image, Header, Container, Label, Icon } from 'semantic-ui-react'
 import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
@@ -245,14 +245,29 @@ class Home extends Component {
  }
  /////////////////////////////////////////////////////////////////////////////
 
- //instrument page
+// <Header>
+//   {this.state.selectedItem.serialnumber}
+// </Header>
+  //instrument page
  renderInstrumentPage()
  {
     return (
       <Container>
-        <Header>
-          {this.state.selectedItem.serialnumber}
+
+        <Header as='h1' icon textAlign='center'>
+          <Image centered size='small' src={DSCImage} />
+          <Header.Content>
+            {this.state.selectedItem.serialnumber}
+          </Header.Content>
+          <Header.Content as='h3'>
+            {this.state.selectedItem.model}
+          </Header.Content>
+          <Header.Content as='h3'>
+            {this.state.selectedItem.location}
+          </Header.Content>
+
         </Header>
+
         <Button onClick= {()=>
             {
                console.log('click! ')
@@ -261,6 +276,11 @@ class Home extends Component {
           }>
           Back
         </Button>
+
+        <Button content='Stop' icon='stop' labelPosition='left' />
+        <Button content='Start' icon='play' labelPosition='left' />
+        <Button content='Next Segment' icon='right arrow' labelPosition='right' />
+
       </Container>
     );
  }
