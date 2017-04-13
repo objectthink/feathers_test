@@ -268,13 +268,12 @@ class Home extends Component {
 
         </Header>
 
-        <Button onClick= {()=>
+        <Button content='Back' icon='chevron left' labelPosition='left' onClick= {()=>
             {
                console.log('click! ')
                this.setState({selectedItem: 'NONE'})
             }
           }>
-          Back
         </Button>
 
         <Button content='Stop' icon='stop' labelPosition='left' />
