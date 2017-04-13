@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
 import { List, Button, Card, Image, Header, Container, Label } from 'semantic-ui-react'
 import { socketApp } from '../store';
-import InstrumentImage from './instrument.png'
+import DSCImage from './dsc.png'
+import SDTImage from './sdt.png'
+import TGAImage from './tga.png'
 import Main from './Main'
 
 class Home extends Component {
@@ -167,22 +169,33 @@ class Home extends Component {
      labelColor = 'yellow';
    }
 
+   var instrumentImage = SDTImage;
+
+   if(item.instrumentType === "DSC")
+   {
+     instrumentImage = DSCImage;
+   }
+
+   if(item.instrumentType === "TGA")
+   {
+     instrumentImage = TGAImage;
+   }
 
    return (
 
      <Card key={item.mac} >
        <Card.Content>
-         <Image floated='right' size='tiny' src={InstrumentImage} />
+         <Image floated='right' size='tiny' src={instrumentImage} />
          <Card.Header>
-           {item.serialnumber}
+           {item.serialnumber} ({item.mac})
          </Card.Header>
 
          <Card.Description>
-           {item.location}
+           {item.model}
          </Card.Description>
 
          <Card.Description>
-           {item.mac}
+           {item.location}
          </Card.Description>
 
          <Label color={labelColor}>

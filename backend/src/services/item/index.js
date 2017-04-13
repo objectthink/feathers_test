@@ -4,6 +4,8 @@ const hooks = require('./hooks');
 
 var instrumentInfoDict = {};
 var instrumentAdvertisementDict = {};
+var instrumentSubscriptions = {};
+var nats;
 
 //var instrumentInfoArray = [];
 
@@ -83,12 +85,13 @@ module.exports = function(){
 
   /////NATS TEST
   var NATS = require('nats');
-  var nats = NATS.connect();
+  nats = NATS.connect();
 
   // Simple Publisher
   nats.publish('foo', 'Hello World!');
 
   // Simple Subscriber
+  //MSG IS INSTRUMENT ID
   nats.subscribe('heartbeat', function(msg) {
 
     //update advertisement reciept
@@ -103,99 +106,88 @@ module.exports = function(){
         mac:msg,
         serialnumber:"serialnumber",
         location:"location",
-        runState:"Idle"
+        runState:"Idle",
+        model:"",
+        instrumentType:"DSC"
       };
 
-      itemService.create({
-        mac:msg,
-        serialnumber:"serialnumber",
-        location:"location",
-        runState:"Idle"
-      });
+      itemService.create(instrumentInfoDict[msg]);
 
       //update
       //fecth location
       nats.request(msg + '.get', 'location', {'max':1}, function(response) {
         console.log('location: ' + response);
 
-        instrumentInfoDict[msg] = {
-          mac:msg,
-          serialnumber:instrumentInfoDict[msg].serialnumber,
-          location:response,
-          runState:instrumentInfoDict[msg].runState
-        };
+        instrumentInfoDict[msg].location = response;
 
-        itemService.update(
-          msg,
-          {
-            mac:msg,
-            serialnumber:instrumentInfoDict[msg].serialnumber,
-            location:response,
-            runState:instrumentInfoDict[msg].runState
-          });
+        itemService.update(msg, instrumentInfoDict[msg]);
       });
 
       //fecth serial number
       nats.request(msg + '.get', 'serial number', {'max':1}, function(response) {
         console.log('serial number: ' + response);
 
-        instrumentInfoDict[msg] = {
-          mac:msg,
-          serialnumber:response,
-          location:instrumentInfoDict[msg].location,
-          runState:instrumentInfoDict[msg].runState
-        };
+        instrumentInfoDict[msg].serialnumber = response;
 
-        itemService.update(
-          msg,
-          {
-            mac:msg,
-            serialnumber:response,
-            location:instrumentInfoDict[msg].location,
-            runState:instrumentInfoDict[msg].runState
-          });
+        itemService.update(msg, instrumentInfoDict[msg]);
       });
 
       //fecth run state
       nats.request(msg + '.get', 'run state', {'max':1}, function(response) {
         console.log('run state: ' + response);
 
-        instrumentInfoDict[msg] = {
-          mac:msg,
-          serialnumber:instrumentInfoDict[msg].serialnumber,
-          location:instrumentInfoDict[msg].location,
-          runState:response
-        };
+        instrumentInfoDict[msg].runState = response;
 
-        itemService.update(
-          msg,
-          {
-            mac:msg,
-            serialnumber:instrumentInfoDict[msg].serialnumber,
-            location:instrumentInfoDict[msg].location,
-            runState:response
-          });
+        itemService.update(msg, instrumentInfoDict[msg]);
       });
 
-      nats.subscribe(msg + '.runstate', function(runstate) {
+      //update
+      //fecth instrument model
+      nats.request(msg + '.get', 'instrument model', {'max':1}, function(response) {
+        console.log('location: ' + response);
+
+        instrumentInfoDict[msg].model = response;
+
+        itemService.update(msg, instrumentInfoDict[msg]);
+      });
+
+      //update
+      //fecth instrument type
+      nats.request(msg + '.get', 'instrument type', {'max':1}, function(response) {
+        console.log('location: ' + response);
+
+        instrumentInfoDict[msg].instrumentType = response;
+
+        itemService.update(msg, instrumentInfoDict[msg]);
+      });
+
+      //listen for run state changes
+      var sid = nats.subscribe(msg + '.runstate', function(runstate) {
         console.log(runstate);
 
-        instrumentInfoDict[msg] = {
-          mac:msg,
-          serialnumber:instrumentInfoDict[msg].serialnumber,
-          location:instrumentInfoDict[msg].location,
-          runState:runstate
-        };
+        instrumentInfoDict[msg].runState = runstate;
 
-        itemService.update(
-          msg,
-          {
-            mac:msg,
-            serialnumber:instrumentInfoDict[msg].serialnumber,
-            location:instrumentInfoDict[msg].location,
-            runState:runstate
-          });
+        //instrumentInfoDict[msg] = {
+        //  mac:msg,
+        //  serialnumber:instrumentInfoDict[msg].serialnumber,
+        //  location:instrumentInfoDict[msg].location,
+        //  runState:runstate
+        //};
+
+        itemService.update(msg, instrumentInfoDict[msg]);
+
+        //itemService.update(
+        //  msg,
+        //  {
+        //    mac:msg,
+        //    serialnumber:instrumentInfoDict[msg].serialnumber,
+        //    location:instrumentInfoDict[msg].location,
+        //    runState:runstate
+        //  });
       });
+
+
+      instrumentSubscriptions[msg] = sid;
 
       /////////////////
     }
@@ -220,6 +212,10 @@ module.exports = function(){
 
           delete instrumentAdvertisementDict[mac];
           delete instrumentInfoDict[mac];
+
+          nats.unsubscribe(instrumentSubscriptions[mac]);
+
+          delete instrumentSubscriptions[mac];
 
           itemService.remove(mac);
         }
