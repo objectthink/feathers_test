@@ -50,6 +50,22 @@ class Main extends Component {
             List View
           </Menu.Item>
 
+          <Menu.Item
+            name="search"
+            active={activeItem === 'search'}
+            onClick={this.onClickMenu}
+            >
+            Search
+          </Menu.Item>
+
+          <Menu.Item
+            name="scripts"
+            active={activeItem === 'scripts'}
+            onClick={this.onClickMenu}
+            >
+            Scripts
+          </Menu.Item>
+
         </Menu>
 
         <Header as="h1" textAlign="center">

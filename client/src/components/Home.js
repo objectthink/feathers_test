@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { List, Button, Card, Image, Header, Container, Label, Icon } from 'semantic-ui-react'
+import { List, Button, Card, Image, Header, Container, Label, Icon, Item } from 'semantic-ui-react'
 import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
@@ -283,6 +283,77 @@ class Home extends Component {
       </Container>
     );
  }
+
+ renderInstrumentPageEx()
+ {
+   var labelColor = 'red';
+
+   if(this.state.selectedItem.runState === 'Idle'){
+     labelColor = 'green';
+   }
+
+   if(this.state.selectedItem.runState === 'Pretest'){
+     labelColor = 'yellow';
+   }
+
+   if(this.state.selectedItem.runState === 'Post Test'){
+     labelColor = 'yellow';
+   }
+
+   var instrumentImage = SDTImage;
+
+   if(this.state.selectedItem.instrumentType === "DSC")
+   {
+     instrumentImage = DSCImage;
+   }
+
+   if(this.state.selectedItem.instrumentType === "TGA")
+   {
+     instrumentImage = TGAImage;
+   }
+
+    return (
+      <Container>
+
+        <Item.Group>
+          <Item>
+            <Item.Image size='tiny' src={instrumentImage} />
+
+            <Item.Content>
+              <Item.Header as='a'>{this.state.selectedItem.serialnumber}</Item.Header>
+              <Item.Meta>{this.state.selectedItem.model}</Item.Meta>
+              <Item.Description>
+                {this.state.selectedItem.location}
+              </Item.Description>
+              <Item.Extra>({this.state.selectedItem.mac})</Item.Extra>
+
+                <Label color={labelColor}>
+                   {this.state.selectedItem.runState}
+                </Label>
+
+            </Item.Content>
+          </Item>
+
+        </Item.Group>
+
+
+        <Button content='Back' icon='chevron left' labelPosition='left' onClick= {()=>
+            {
+               console.log('click! ')
+               this.setState({selectedItem: 'NONE'})
+            }
+          }>
+        </Button>
+
+        <Button content='Stop' icon='stop' labelPosition='left' />
+        <Button content='Start' icon='play' labelPosition='left' />
+        <Button content='Next Segment' icon='right arrow' labelPosition='right' />
+
+      </Container>
+    );
+ }
+
+
  ////////////////////////////////////////////////////////////////////////////
 
  render() {
@@ -290,16 +361,29 @@ class Home extends Component {
 
      //console.log(this.props);
      //console.log(this.props.items);
-
      //console.log(this.props.items.all);
-
      //console.log(this.props.activeItem)
 
      console.log('render called!');
      console.log(this.state.selectedItem);
 
      if(this.state.selectedItem !== 'NONE'){
-       return this.renderInstrumentPage();
+
+       var itemService = socketApp.service('/items');
+       itemService.get(this.state.selectedItem.mac).then(
+         answer => {
+           console.log('called get:');
+           console.log(answer);
+
+           //probably not the best way to do this
+           //still poking around with react and js
+           if(answer.runState !== this.state.selectedItem.runState)
+           {
+             this.setState({selectedItem: answer});
+           }
+         });
+
+       return this.renderInstrumentPageEx();
      }
      else {
        return this.renderReactCardsList();

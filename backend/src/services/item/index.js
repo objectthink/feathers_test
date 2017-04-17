@@ -40,10 +40,12 @@ class Service {
     return Promise.resolve(instrumentInfoArray);
   }
 
-  get(id, params) {
-    return Promise.resolve({
-      id, text: `A new message with ID: ${id}!`
-    });
+//      id, text: `A new message with ID: ${id}!`
+
+  get(mac, params) {
+    return Promise.resolve(
+      instrumentInfoDict[mac]
+    );
   }
 
   create(data, params) {
