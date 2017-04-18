@@ -5,6 +5,7 @@ import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
 import TGAImage from './tga.png'
+import TRIOSImage from './trios.png'
 import Main from './Main'
 
 class Home extends Component {
@@ -181,6 +182,11 @@ class Home extends Component {
      instrumentImage = TGAImage;
    }
 
+   if(item.instrumentType === "TRIOS")
+   {
+     instrumentImage = TRIOSImage;
+   }
+
    return (
 
      <Card key={item.mac} >
@@ -310,6 +316,11 @@ class Home extends Component {
    if(this.state.selectedItem.instrumentType === "TGA")
    {
      instrumentImage = TGAImage;
+   }
+
+   if(this.state.selectedItem.instrumentType === "TRIOS")
+   {
+     instrumentImage = TRIOSImage;
    }
 
     return (
