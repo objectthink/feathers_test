@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { List, Button, Card, Image, Header, Container, Label, Icon, Item } from 'semantic-ui-react'
+import { Button, Card, Image, Header, Container, Label, Item } from 'semantic-ui-react'
 import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
 import TGAImage from './tga.png'
 import TRIOSImage from './trios.png'
-import Main from './Main'
 
 class Home extends Component {
 
@@ -21,19 +20,10 @@ class Home extends Component {
     }
 
     this.listItem = this.listItem.bind(this);
-    this.onClickReset = this.onClickReset.bind(this);
     this.listReactCardItem = this.listReactCardItem.bind(this);
 
     //this.onClickMore = this.onClickMore.bind(this);
   }
-
-//  <div class="summary">
-//     <a>{item.runState}</a>
-//  </div>
-
-//  <div className="description">
-//    {item.runState}
-//  </div>
 
   //////CARDS//////////////////////////////////////////////////////////////////
   listCardItem(item) {
@@ -58,17 +48,6 @@ class Home extends Component {
         </div>
       </div>
     );
-  }
-
-  onClickReset()
-  {
-    console.log('onClickReset');
-
-    var itemService = socketApp.service('/items');
-
-    itemService.find({reset:'true'});
-
-    this.setState({text: ''});
   }
 
   //<button className="ui button" onClick={this.onClickReset}>
@@ -271,10 +250,9 @@ class Home extends Component {
           <Header.Content as='h3'>
             {this.state.selectedItem.location}
           </Header.Content>
-
         </Header>
 
-        <Button content='Back' icon='chevron left' labelPosition='left' onClick= {()=>
+        <Button content='Back' icon='chevron left' labelPosition='left' onClick={()=>
             {
                console.log('click! ')
                this.setState({selectedItem: 'NONE'})
@@ -348,7 +326,7 @@ class Home extends Component {
         </Item.Group>
 
 
-        <Button content='Back' icon='chevron left' labelPosition='left' onClick= {()=>
+        <Button content='Back' icon='chevron left' labelPosition='left' onClick={()=>
             {
                console.log('click! ')
                this.setState({selectedItem: 'NONE'})
@@ -356,9 +334,33 @@ class Home extends Component {
           }>
         </Button>
 
+        <Button content='Change Location' icon='marker' labelPosition='left' onClick={()=>
+            {
+              var newLocation = prompt("new location", "some location");
+
+              this.state.selectedItem.location = newLocation;//"NEW LOCATION";
+
+              var itemService = socketApp.service('/items');
+              itemService.update(
+                this.state.selectedItem.mac,
+                this.state.selectedItem,
+                {query: {sendToInstrument: 'true', which: 'location'}});
+
+                this.setState({selectedItem: this.state.selectedItem});
+            }
+          }>
+        </Button>
+
         <Button content='Stop' icon='stop' labelPosition='left' />
         <Button content='Start' icon='play' labelPosition='left' />
-        <Button content='Next Segment' icon='right arrow' labelPosition='right' />
+        <Button content='Next Segment' icon='right arrow' labelPosition='right' onClick={()=>
+            {
+              console.log('next segment clicked!');
+              var itemService = socketApp.service('/items');
+              itemService.find({query: {name: 'value'}});
+            }
+          }
+        />
 
       </Container>
     );
@@ -369,11 +371,6 @@ class Home extends Component {
 
  render() {
    try {
-
-     //console.log(this.props);
-     //console.log(this.props.items);
-     //console.log(this.props.items.all);
-     //console.log(this.props.activeItem)
 
      console.log('render called!');
      console.log(this.state.selectedItem);

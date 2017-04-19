@@ -14,18 +14,12 @@ class Service {
     this.options = options || {};
   }
 
-  findX(params) {
-    console.log('in find');
-    return Promise.resolve([]);
-  }
-
   find(params) {
-    //console.log('in find');
     //return Promise.resolve([{id:"1", mac:"0a-1b-3c-4d-5e-6f", serialnumber:"RIODIO", location:"LABORATORY"}]);
 
     console.log('find!');
 
-    if(params.reset==='true')
+    if(params.query.reset==='true')
     {
       console.log('resetting');
       instrumentInfoDict = {};
@@ -57,7 +51,26 @@ class Service {
   }
 
   update(id, data, params) {
-    console.log('update item:' + id + ' with:'+ data);
+
+
+    if(params.query.sendToInstrument === 'true')
+    {
+      console.log('send to instrument requested: ' + params.query.which + ':' + data.location);
+
+      nats.request(
+        data.mac + '.set.' + params.query.which,
+        data.location,
+        {'max':1},
+        function(response) {
+          console.log('update: ' + response);
+
+          if(response === "SUCCESS")
+          {
+            instrumentInfoDict[data.mac] = data;
+          }
+      });
+    }
+
     return Promise.resolve(data);
   }
 
@@ -169,23 +182,7 @@ module.exports = function(){
 
         instrumentInfoDict[msg].runState = runstate;
 
-        //instrumentInfoDict[msg] = {
-        //  mac:msg,
-        //  serialnumber:instrumentInfoDict[msg].serialnumber,
-        //  location:instrumentInfoDict[msg].location,
-        //  runState:runstate
-        //};
-
         itemService.update(msg, instrumentInfoDict[msg]);
-
-        //itemService.update(
-        //  msg,
-        //  {
-        //    mac:msg,
-        //    serialnumber:instrumentInfoDict[msg].serialnumber,
-        //    location:instrumentInfoDict[msg].location,
-        //    runState:runstate
-        //  });
       });
 
 
