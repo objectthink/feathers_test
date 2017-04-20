@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
-import { Header, Container, Menu, Select} from 'semantic-ui-react'
+import { Header, Container, Menu, Select, Button, Modal} from 'semantic-ui-react'
 import { socketApp } from '../store';
 
 class Main extends Component {
 
-  state = {}
+  constructor(props) {
+    super(props);
+
+    this.state = {
+
+    }
+
+    this.onClickMenu = this.onClickMenu.bind(this);
+  }
 
   componentWillMount() {
     const itemService = socketApp.service('/items');
@@ -13,9 +21,21 @@ class Main extends Component {
     itemService.on('removed', (item) => this.props.removedItem(item));
   }
 
-  onClickMenu = (e, { name }) => {
+//  onClickMenu = (e, { name }) => {
+//    console.log('menu clicked!')
+//    this.setState({ activeItem: name })
+//  }
+
+  onClickMenu(e, { name }) {
     console.log('menu clicked!')
     this.setState({ activeItem: name })
+
+    if(name === 'about'){
+      alert('about!');
+    }
+    else {
+      this.props.routes[1].component.prototype.menuSelection({menuSelection: name});
+    }
   }
 
   render() {

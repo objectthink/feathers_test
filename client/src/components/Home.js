@@ -16,13 +16,19 @@ class Home extends Component {
 
     this.state = {
       text: '',
-      selectedItem: 'NONE'
+      selectedItem: 'NONE',
+      menuSelection: 'NONE'
     }
 
     this.listItem = this.listItem.bind(this);
     this.listReactCardItem = this.listReactCardItem.bind(this);
 
-    //this.onClickMore = this.onClickMore.bind(this);
+    this.menuSelection = this.menuSelection.bind(this);
+  }
+
+  menuSelection(args){
+    console.log('called me: ' + args.menuSelection);
+    //this.setState({menuSelection: ''});
   }
 
   //////CARDS//////////////////////////////////////////////////////////////////
@@ -412,14 +418,11 @@ class Home extends Component {
 
    }
    catch (e) {
-
      console.log(e);
    }
    finally {
    }
-
  }
-
 }
 
 export default Home;

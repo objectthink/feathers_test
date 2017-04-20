@@ -10,6 +10,10 @@ import store, { history } from './store';
 
 import './styles.css';
 
+var testFunction = ()=> {
+    console.log('called testFunction')
+}
+
 const router = (
   <Provider store={store}>
     <Router history={history}>

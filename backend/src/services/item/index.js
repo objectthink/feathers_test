@@ -17,7 +17,7 @@ class Service {
   find(params) {
     //return Promise.resolve([{id:"1", mac:"0a-1b-3c-4d-5e-6f", serialnumber:"RIODIO", location:"LABORATORY"}]);
 
-    console.log('find!');
+    //console.log('find!');
 
     if(params.query.reset==='true')
     {
