@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Header, Container, Menu } from 'semantic-ui-react'
+import { Header, Container, Menu, Select} from 'semantic-ui-react'
 import { socketApp } from '../store';
 
 class Main extends Component {
@@ -65,6 +65,12 @@ class Main extends Component {
             >
             Scripts
           </Menu.Item>
+
+          <Select placeholder='Instrument Type...' options={[
+            {text:'ALL', value:'ALL'},
+            {text:'DSC', value:'DSC'},
+            {text:'SDT', value:'SDT'}
+            ]} />
 
         </Menu>
 

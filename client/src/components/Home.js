@@ -220,7 +220,6 @@ class Home extends Component {
    }
    catch (e)
    {
-
      console.log(e);
    }
    finally
@@ -325,6 +324,9 @@ class Home extends Component {
 
         </Item.Group>
 
+        <div className="ui relaxed divided list">
+          {this.state.selectedItem.realtimesignalsstatus}
+        </div>
 
         <Button content='Back' icon='chevron left' labelPosition='left' onClick={()=>
             {
@@ -356,11 +358,11 @@ class Home extends Component {
         <Button content='Next Segment' icon='right arrow' labelPosition='right' onClick={()=>
             {
               console.log('next segment clicked!');
-              var itemService = socketApp.service('/items');
-              itemService.find({query: {name: 'value'}});
+              //var itemService = socketApp.service('/items');
+              //itemService.find({query: {name: 'value'}});
             }
-          }
-        />
+          }>
+        </Button>
 
       </Container>
     );
@@ -382,6 +384,8 @@ class Home extends Component {
          answer => {
            console.log('called get:');
            console.log(answer);
+
+           //this.setState({selectedItem: answer});
 
            //probably not the best way to do this
            //still poking around with react and js

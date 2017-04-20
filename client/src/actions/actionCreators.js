@@ -1,4 +1,5 @@
 export function createItem(item) {
+  console.log('createItem');
   return {
     type: 'CREATE_ITEM',
     item
@@ -6,6 +7,7 @@ export function createItem(item) {
 }
 
 export function removeItem(id) {
+  console.log('removeItem');
   return {
     type: 'REMOVE_ITEM',
     id
@@ -13,6 +15,7 @@ export function removeItem(id) {
 }
 
 export function updateItem(id, newData) {
+  console.log('updateItem');
   return {
     type: 'UPDATE_ITEM',
     id,
@@ -21,6 +24,7 @@ export function updateItem(id, newData) {
 }
 
 export function findAllItems() {
+  console.log('findAllItems');
   return {
     type: 'FIND_ALL_ITEMS',
   }
@@ -43,6 +47,7 @@ export function updatedItem(item) {
 }
 
 export function removedItem(item) {
+  console.log('removedItem');
   return {
     type: 'REMOVED_ITEM',
     item

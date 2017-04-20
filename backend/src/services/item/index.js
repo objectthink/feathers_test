@@ -51,8 +51,10 @@ class Service {
   }
 
   update(id, data, params) {
+    console.log('itemService.update');
 
-
+    if(params)
+    if(params.query)
     if(params.query.sendToInstrument === 'true')
     {
       console.log('send to instrument requested: ' + params.query.which + ':' + data.location);
@@ -71,6 +73,7 @@ class Service {
       });
     }
 
+    console.log('itemService.update return ' + data);
     return Promise.resolve(data);
   }
 
@@ -185,6 +188,14 @@ module.exports = function(){
         itemService.update(msg, instrumentInfoDict[msg]);
       });
 
+      //listen for real time signals
+      var sid = nats.subscribe(msg + '.realtimesignalsstatus', function(response) {
+        //console.log(runstate);
+
+        instrumentInfoDict[msg].realtimesignalsstatus = response;
+
+        //itemService.update(msg, instrumentInfoDict[msg]);
+      });
 
       instrumentSubscriptions[msg] = sid;
 
