@@ -22,8 +22,24 @@ class Home extends Component {
 
     this.listItem = this.listItem.bind(this);
     this.listReactCardItem = this.listReactCardItem.bind(this);
-
     this.menuSelection = this.menuSelection.bind(this);
+
+    console.log('constructed');
+  }
+
+  getDefaultsProps()
+  {
+    console.log('getDefaultsProps');
+  }
+
+  componentWillMount()
+  {
+    console.log('componentWillMount');
+  }
+
+  componentDidMount()
+  {
+    console.log('componentDidMount');
   }
 
   menuSelection(args){

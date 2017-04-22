@@ -22,6 +22,7 @@
     "mocha": "mocha test/ --recursive"
   },
   "dependencies": {
+    "apn": "^2.1.4",
     "body-parser": "^1.17.1",
     "compression": "^1.6.2",
     "cors": "^2.8.3",
