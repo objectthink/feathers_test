@@ -53,8 +53,10 @@ class Service {
 
         // Display the following message (the actual notification text, supports emoji)
         //notification.alert = 'Hello World \u270C';
-        notification.alert = item.serialnumber + ':' + item.runState;
-
+        //notification.alert = item.serialnumber + ':' + item.runState;
+        notification.title = item.serialnumber;
+        notification.body = item.runState;
+        
         // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
         notification.payload = {id: 123};
 
@@ -147,6 +149,14 @@ module.exports = function(){
 
   // Initialize our service with any options it requires
   app.use('/items', new Service());
+  app.use('/deviceTokens', new Service());
+
+  //TEST CODE
+  //get device tokens list from device tokens service
+  var deviceTokensService = app.service('/deviceTokens');
+  var deviceTokensList = deviceTokensService.find();
+  console.log(deviceTokensList);
+  ///////////
 
   // Get our initialize service to that we can bind hooks
   const itemService = app.service('/items');
