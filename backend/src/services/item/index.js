@@ -17,6 +17,14 @@ class Service {
 
   }
 
+  setup(app, path)
+  {
+      console.log(app);
+      console.log(path);
+
+      this.app = app;
+  }
+
   sendAPNS(item)
   {
     var apn = require('apn');
@@ -31,10 +39,17 @@ class Service {
         production: false // Set to true if sending a notification to a production iOS app
     });
 
-    //iterate of device ids
-    for(var i=0; i < deviceIds.length; i++)
-    {
-        var deviceToken = deviceIds[i];
+    //get list of device tokens from the device tokens service
+    var deviceTokensService = this.app.service('/deviceTokens');
+    deviceTokensService.find().then((data)=>{
+      //console.log(data.data);
+
+      //iterate over the tokens and send push notification
+      for(var i in data.data)
+      {
+        //console.log(data.data[i].token);
+
+        var deviceToken = data.data[i].token;
 
         // Prepare a new notification
         var notification = new apn.Notification();
@@ -56,7 +71,7 @@ class Service {
         //notification.alert = item.serialnumber + ':' + item.runState;
         notification.title = item.serialnumber;
         notification.body = item.runState;
-        
+
         // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
         notification.payload = {id: 123};
 
@@ -65,11 +80,19 @@ class Service {
             // Check the result for any failed devices
             console.log(result);
         });
-    }
+      }
+    });
+
+    ///////////
+
+    //TEST CODE
+    //iterate of device ids
+    //for(var i=0; i < deviceIds.length; i++)
+    //{
+    //}
 
     // Enter the device token from the Xcode console
     //var deviceToken = '19A9AC9B4B8FB08650248A941FC78C22358D4EA81ECB8C050B31FE9CCF56D784';
-
   }
 
   find(params) {
@@ -149,14 +172,6 @@ module.exports = function(){
 
   // Initialize our service with any options it requires
   app.use('/items', new Service());
-  app.use('/deviceTokens', new Service());
-
-  //TEST CODE
-  //get device tokens list from device tokens service
-  var deviceTokensService = app.service('/deviceTokens');
-  var deviceTokensList = deviceTokensService.find();
-  console.log(deviceTokensList);
-  ///////////
 
   // Get our initialize service to that we can bind hooks
   const itemService = app.service('/items');
