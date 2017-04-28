@@ -49,7 +49,7 @@ class Service {
       {
         //console.log(data.data[i].token);
 
-        var deviceToken = data.data[i].token;
+        var deviceToken = data.data[i].deviceToken;
 
         // Prepare a new notification
         var notification = new apn.Notification();

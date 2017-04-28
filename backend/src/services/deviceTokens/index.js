@@ -13,6 +13,18 @@ module.exports = function(){
     autoload: true
   });
 
+/*
+  db.removeIndex('deviceToken', function (err) {
+  });
+*/
+
+  db.ensureIndex(
+    { fieldName: 'deviceToken', unique: true },
+      function (err)
+      {
+        console.log(err)
+      });
+
   let options = {
     Model: db,
     paginate: {
