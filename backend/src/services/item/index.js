@@ -25,6 +25,77 @@ class Service {
       this.app = app;
   }
 
+  sendAPNSString(item, s)
+  {
+    var apn = require('apn');
+
+    // Set up apn with the APNs Auth Key
+    var apnProvider = new apn.Provider({
+         token: {
+            key: 'apns.p8', // Path to the key p8 file
+            keyId: '8AGAMF95MV', // The Key ID of the p8 file (available at https://developer.apple.com/account/ios/certificate/key)
+            teamId: '6AP8DGBG6H', // The Team ID of your Apple Developer Account (available at https://developer.apple.com/account/#/membership/)
+        },
+        production: false // Set to true if sending a notification to a production iOS app
+    });
+
+    //get list of device tokens from the device tokens service
+    var deviceTokensService = this.app.service('/deviceTokens');
+    deviceTokensService.find().then((data)=>{
+      //console.log(data.data);
+
+      //iterate over the tokens and send push notification
+      for(var i in data.data)
+      {
+        //console.log(data.data[i].token);
+
+        var deviceToken = data.data[i].deviceToken;
+
+        // Prepare a new notification
+        var notification = new apn.Notification();
+
+        // Specify your iOS app's Bundle ID (accessible within the project editor)
+        notification.topic = 'com.objectthink.mim.demo.mim-demo';
+
+        // Set expiration to 1 hour from now (in case device is offline)
+        notification.expiry = Math.floor(Date.now() / 1000) + 3600;
+
+        // Set app badge indicator
+        //notification.badge = 3;
+
+        // Play ping.aiff sound when the notification is received
+        //notification.sound = 'ping.aiff';
+
+        // Display the following message (the actual notification text, supports emoji)
+        //notification.alert = 'Hello World \u270C';
+        //notification.alert = item.serialnumber + ':' + item.runState;
+        notification.title = item.serialnumber;
+        notification.body = s;
+
+        // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
+        notification.payload = {id: 123};
+
+        // Actually send the notification
+        apnProvider.send(notification, deviceToken).then(function(result) {
+            // Check the result for any failed devices
+            console.log(result);
+        });
+      }
+    });
+
+    ///////////
+
+    //TEST CODE
+    //iterate of device ids
+    //for(var i=0; i < deviceIds.length; i++)
+    //{
+    //}
+
+    // Enter the device token from the Xcode console
+    //var deviceToken = '19A9AC9B4B8FB08650248A941FC78C22358D4EA81ECB8C050B31FE9CCF56D784';
+
+  }
+
   sendAPNS(item)
   {
     var apn = require('apn');
@@ -280,10 +351,25 @@ module.exports = function(){
         //itemService.update(msg, instrumentInfoDict[msg]);
       });
 
+      //listen for instrument events
+      var sid = nats.subscribe(msg + '.event', function(s) {
+        console.log('event:' + s);
+
+        itemService.sendAPNSString(instrumentInfoDict[msg], 'event:' + s);
+      });
+
+      //listen for instrument errors
+      var sid = nats.subscribe(msg + '.error', function(s) {
+        console.log('error:' + s);
+
+        itemService.sendAPNSString(instrumentInfoDict[msg], 'error:' + s);
+      });
+
       instrumentSubscriptions[msg] = sid;
 
       /////////////////
     }
+
   });
 
   //remove stale heartbeats
