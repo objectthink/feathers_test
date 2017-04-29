@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Input, List } from 'semantic-ui-react'
-import { Button, Card, Image, Header, Container, Label, Item } from 'semantic-ui-react'
+import { Button, Card, Image, Header, Container, Label, Item, Message} from 'semantic-ui-react'
 import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
@@ -346,9 +346,14 @@ class Home extends Component {
 
         </Item.Group>
 
-        <div className="ui relaxed divided list">
-          {this.state.selectedItem.realtimesignalsstatus}
-        </div>
+        <Message>
+          <Message.Header>
+            Real time signals
+          </Message.Header>
+          <p>
+            {this.state.selectedItem.realtimesignalsstatus}
+          </p>
+        </Message>
 
         <Button content='Back' icon='chevron left' labelPosition='left' onClick={()=>
             {
@@ -406,6 +411,8 @@ class Home extends Component {
          answer => {
            console.log('called get:');
            console.log(answer);
+
+           this.state.selectedItem = answer;
 
            //this.setState({selectedItem: answer});
 

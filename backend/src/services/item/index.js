@@ -203,7 +203,7 @@ class Service {
   }
 
   update(id, data, params) {
-    console.log('itemService.update');
+    //console.log('itemService.update');
 
     if(params)
     if(params.query)
@@ -225,7 +225,7 @@ class Service {
       });
     }
 
-    console.log('itemService.update return ' + data);
+    //console.log('itemService.update return ' + data);
     return Promise.resolve(data);
   }
 
@@ -348,7 +348,7 @@ module.exports = function(){
 
         instrumentInfoDict[msg].realtimesignalsstatus = response;
 
-        //itemService.update(msg, instrumentInfoDict[msg]);
+        itemService.update(msg, instrumentInfoDict[msg]);
       });
 
       //listen for instrument events
