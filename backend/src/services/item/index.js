@@ -288,9 +288,12 @@ module.exports = function(){
       nats.request(msg + '.get', 'location', {'max':1}, function(response) {
         console.log('location: ' + response);
 
-        instrumentInfoDict[msg].location = response;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].location = response;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);          
+        }
       });
 
       //fecth serial number
@@ -346,9 +349,12 @@ module.exports = function(){
       var sid = nats.subscribe(msg + '.realtimesignalsstatus', function(response) {
         //console.log(runstate);
 
-        instrumentInfoDict[msg].realtimesignalsstatus = response;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].realtimesignalsstatus = response;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
+        }
       });
 
       //listen for instrument events
