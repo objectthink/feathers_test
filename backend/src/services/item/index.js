@@ -292,7 +292,7 @@ module.exports = function(){
         {
           instrumentInfoDict[msg].location = response;
 
-          itemService.update(msg, instrumentInfoDict[msg]);          
+          itemService.update(msg, instrumentInfoDict[msg]);
         }
       });
 
@@ -300,18 +300,24 @@ module.exports = function(){
       nats.request(msg + '.get', 'serial number', {'max':1}, function(response) {
         console.log('serial number: ' + response);
 
-        instrumentInfoDict[msg].serialnumber = response;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].serialnumber = response;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
+        }
       });
 
       //fecth run state
       nats.request(msg + '.get', 'run state', {'max':1}, function(response) {
         console.log('run state: ' + response);
 
-        instrumentInfoDict[msg].runState = response;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].runState = response;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
+        }
       });
 
       //update
@@ -319,9 +325,12 @@ module.exports = function(){
       nats.request(msg + '.get', 'instrument model', {'max':1}, function(response) {
         console.log('location: ' + response);
 
-        instrumentInfoDict[msg].model = response;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].model = response;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
+        }
       });
 
       //update
