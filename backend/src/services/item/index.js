@@ -115,9 +115,29 @@ class Service {
     deviceTokensService.find().then((data)=>{
       //console.log(data.data);
 
+      var userSettingsService = this.app.service('/userSettings');
+
       //iterate over the tokens and send push notification
       for(var i in data.data)
       {
+        // get any settings for this device token ( user )
+        //data.data[i].deviceToken
+        userSettingsService.find({query: {deviceToken: data.data[i].deviceToken}}).then((data)=>{
+          console.log('found:' + data.data.length);
+
+          if(data.data.length == 1)
+          {
+            if(item.serialnumber.includes(data.data[0].serialNumberContains))
+            {
+              console.log("SEND!!!")
+            }
+            else
+            {
+              console.log("DO NOT SEND!!!")
+            }
+          }
+        });
+
         //console.log(data.data[i].token);
 
         var deviceToken = data.data[i].deviceToken;
@@ -145,6 +165,8 @@ class Service {
 
         // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
         notification.payload = {id: 123};
+
+        // check user settings to decide if we should send a notification
 
         // Actually send the notification
         apnProvider.send(notification, deviceToken).then(function(result) {

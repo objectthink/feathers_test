@@ -1,4 +1,5 @@
 'use strict';
+const userSettings = require('./userSettings');
 const deviceTokens = require('./deviceTokens');
 const instrumentManager = require('./instrumentManager');
 const item = require('./item');
@@ -14,4 +15,5 @@ module.exports = function() {
   app.configure(instrumentManager);
   app.configure(item);
   app.configure(deviceTokens);
+  app.configure(userSettings);
 };
