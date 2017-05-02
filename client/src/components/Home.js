@@ -291,7 +291,7 @@ class Home extends Component {
 
  renderInstrumentPageEx()
  {
-   var labelColor = 'red';
+   var labelColor = 'grey';
 
    if(this.state.selectedItem.runState === 'Idle'){
      labelColor = 'green';
@@ -351,7 +351,7 @@ class Home extends Component {
             Real time signals
           </Message.Header>
           <p>
-            {this.state.selectedItem.realtimesignalsstatus}
+            something goes here!
           </p>
         </Message>
 

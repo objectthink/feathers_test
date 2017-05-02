@@ -362,7 +362,7 @@ module.exports = function(){
         {
           instrumentInfoDict[msg].realtimesignalsstatus = response;
 
-          itemService.update(msg, instrumentInfoDict[msg]);
+          //itemService.update(msg, instrumentInfoDict[msg]);
         }
       });
 
