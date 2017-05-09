@@ -26,6 +26,7 @@
     "body-parser": "^1.17.1",
     "compression": "^1.6.2",
     "cors": "^2.8.3",
+    "couchbase": "^2.3.3",
     "feathers": "^2.1.1",
     "feathers-authentication": "^0.7.12",
     "feathers-configuration": "^0.3.3",
@@ -38,6 +39,7 @@
     "nedb": "^1.8.0",
     "passport": "^0.3.2",
     "serve-favicon": "^2.4.2",
+    "uuid": "^3.0.1",
     "winston": "^2.3.1"
   },
   "devDependencies": {

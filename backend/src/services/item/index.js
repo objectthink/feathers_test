@@ -218,9 +218,6 @@ module.exports = function(){
   var NATS = require('nats');
   nats = NATS.connect();
 
-  // Simple Publisher
-  nats.publish('foo', 'Hello World!');
-
   // Simple Subscriber
   //MSG IS INSTRUMENT ID
   nats.subscribe('heartbeat', function(msg) {

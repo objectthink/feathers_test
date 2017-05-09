@@ -348,7 +348,7 @@ class Home extends Component {
 
         <Message>
           <Message.Header>
-            Real time signals
+            Real time signals, experiments, syslog, etc.
           </Message.Header>
           <p>
             something goes here!
@@ -382,9 +382,26 @@ class Home extends Component {
 
         <Button content='Stop' icon='stop' labelPosition='left' />
         <Button content='Start' icon='play' labelPosition='left' />
-        <Button content='Next Segment' icon='right arrow' labelPosition='right' onClick={()=>
+        <Button content='Control' icon='settings' labelPosition='left' onClick={()=>
             {
-              console.log('next segment clicked!');
+              console.log('control clicked!');
+              //var itemService = socketApp.service('/items');
+              //itemService.find({query: {name: 'value'}});
+            }
+          }>
+        </Button>
+        <Button content='Experiments' icon='line chart' labelPosition='left' onClick={()=>
+            {
+              console.log('experiments clicked!');
+              //var itemService = socketApp.service('/items');
+              //itemService.find({query: {name: 'value'}});
+            }
+          }>
+        </Button>
+
+        <Button content='Syslog' icon='file text outline' labelPosition='left' onClick={()=>
+            {
+              console.log('syslog clicked!');
               //var itemService = socketApp.service('/items');
               //itemService.find({query: {name: 'value'}});
             }
