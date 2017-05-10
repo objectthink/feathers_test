@@ -1,4 +1,6 @@
 'use strict';
+const instrumentMessages = require('./instrumentMessages');
+const syslog = require('./syslog');
 const experiments = require('./experiments');
 const userSettings = require('./userSettings');
 const deviceTokens = require('./deviceTokens');
@@ -18,4 +20,6 @@ module.exports = function() {
   app.configure(deviceTokens);
   app.configure(userSettings);
   app.configure(experiments);
+  app.configure(syslog);
+  app.configure(instrumentMessages);
 };
