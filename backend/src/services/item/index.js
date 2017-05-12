@@ -27,6 +27,12 @@ class Service {
       console.log(path);
 
       this.app = app;
+
+      var couchbase = require('couchbase');
+      var cluster = new couchbase.Cluster('couchbase://127.0.0.1');
+      var bucket = cluster.openBucket('instrument_info');
+
+      this.bucket = bucket;
   }
 
   requestNotificationForDeviceToken(item, deviceToken, aMessage)
@@ -190,6 +196,19 @@ class Service {
     return Promise.resolve(data);
   }
 
+  updateDB(id, item)
+  {
+    this.bucket.upsert(id, item, function(err, result)
+    {
+      if(err){
+
+      }
+      else {
+        console.log('updated instrument info:  ' + item)
+
+      }
+    });
+  }
   patch(id, data, params) {
     return Promise.resolve(data);
   }
@@ -240,6 +259,7 @@ module.exports = function(){
       };
 
       itemService.create(instrumentInfoDict[msg]);
+      itemService.updateDB(msg, instrumentInfoDict[msg]);
 
       //update
       //fecth location
@@ -251,6 +271,7 @@ module.exports = function(){
           instrumentInfoDict[msg].location = response;
 
           itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
         }
       });
 
@@ -263,6 +284,7 @@ module.exports = function(){
           instrumentInfoDict[msg].serialnumber = response;
 
           itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
         }
       });
 
@@ -275,6 +297,7 @@ module.exports = function(){
           instrumentInfoDict[msg].runState = response;
 
           itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
         }
       });
 
@@ -288,6 +311,7 @@ module.exports = function(){
           instrumentInfoDict[msg].model = response;
 
           itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
         }
       });
 
@@ -299,6 +323,7 @@ module.exports = function(){
         instrumentInfoDict[msg].instrumentType = response;
 
         itemService.update(msg, instrumentInfoDict[msg]);
+        itemService.updateDB(msg, instrumentInfoDict[msg]);
       });
 
       //listen for run state changes
@@ -308,6 +333,7 @@ module.exports = function(){
         instrumentInfoDict[msg].runState = runstate;
 
         itemService.update(msg, instrumentInfoDict[msg]);
+        itemService.updateDB(msg, instrumentInfoDict[msg]);
 
         itemService.requestNotification(instrumentInfoDict[msg], runstate);
       });
@@ -318,7 +344,7 @@ module.exports = function(){
 
         if(instrumentInfoDict[msg])
         {
-          instrumentInfoDict[msg].realtimesignalsstatus = response;
+          //instrumentInfoDict[msg].realtimesignalsstatus = response;
 
           //TEMPORARILY STOP NOTIFYING REAL TIME SIGNALS
           //itemService.update(msg, instrumentInfoDict[msg]);
