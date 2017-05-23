@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-//import { Input, List } from 'semantic-ui-react'
-import { Button, Card, Image, Header, Container, Label, Item, Message} from 'semantic-ui-react'
+import { Input, List, Menu, Icon } from 'semantic-ui-react'
+import { Button, Card, Image, Header, Container, Label, Item, Message, Table} from 'semantic-ui-react'
 import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
@@ -23,6 +23,8 @@ class Home extends Component {
     this.listItem = this.listItem.bind(this);
     this.listReactCardItem = this.listReactCardItem.bind(this);
     this.menuSelection = this.menuSelection.bind(this);
+
+    this.selectedItem = {}
 
     console.log('constructed');
   }
@@ -289,6 +291,16 @@ class Home extends Component {
     );
  }
 
+ realtimeSignalItem(signal)
+ {
+    return (
+      <Table.Row>
+        <Table.Cell>{signal._name}</Table.Cell>
+        <Table.Cell>{signal._value}</Table.Cell>
+      </Table.Row>
+    );
+ }
+
  renderInstrumentPageEx()
  {
    var labelColor = 'grey';
@@ -322,6 +334,13 @@ class Home extends Component {
      instrumentImage = TRIOSImage;
    }
 
+   var signals = []
+   signals = this.state.selectedItem.realtimesignalsstatus
+
+   //this.state.selectedItem.realtimesignalsstatus.map((item, index)=>{
+   ///  console.log(item)
+   //})
+
     return (
       <Container>
 
@@ -348,12 +367,40 @@ class Home extends Component {
 
         <Message>
           <Message.Header>
-            Real time signals, experiments, syslog, etc.
+            Real time signals, experiments, and syslog
           </Message.Header>
-          <p>
-            something goes here!
-          </p>
         </Message>
+
+        <Table celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Value</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+
+          <Table.Body>
+          </Table.Body>
+            {signals.map(this.realtimeSignalItem)}
+          <Table.Footer>
+          <Table.Row>
+            <Table.HeaderCell colSpan='3'>
+              <Menu floated='right' pagination>
+                <Menu.Item as='a' icon>
+                  <Icon name='left chevron' />
+                </Menu.Item>
+                <Menu.Item as='a'>1</Menu.Item>
+                <Menu.Item as='a'>2</Menu.Item>
+                <Menu.Item as='a'>3</Menu.Item>
+                <Menu.Item as='a'>4</Menu.Item>
+                <Menu.Item as='a' icon>
+                  <Icon name='right chevron' />
+                </Menu.Item>
+              </Menu>
+            </Table.HeaderCell>
+          </Table.Row>
+          </Table.Footer>
+        </Table>
 
         <Button content='Back' icon='chevron left' labelPosition='left' onClick={()=>
             {
@@ -425,9 +472,12 @@ class Home extends Component {
 
        var itemService = socketApp.service('/items');
        itemService.get(this.state.selectedItem.mac).then(
-         answer => {
+         answer =>
+         {
            console.log('called get:');
            console.log(answer);
+
+           this.selectedItem = answer
 
            this.state.selectedItem = answer;
 
@@ -435,15 +485,16 @@ class Home extends Component {
 
            //probably not the best way to do this
            //still poking around with react and js
-           if(answer.runState !== this.state.selectedItem.runState)
-           {
-             this.setState({selectedItem: answer});
-           }
+           //if(answer.runState !== this.state.selectedItem.runState)
+           //{
+            // this.setState({selectedItem: answer});
+           //}
          });
 
        return this.renderInstrumentPageEx();
      }
-     else {
+     else
+     {
        return this.renderReactCardsList();
      }
 

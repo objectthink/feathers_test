@@ -235,6 +235,7 @@ module.exports = function(){
 
   /////NATS TEST
   var NATS = require('nats');
+  //nats = NATS.connect("nats://54.236.40.91:4222");
   nats = NATS.connect();
 
   // Simple Subscriber
@@ -255,7 +256,8 @@ module.exports = function(){
         location:"location",
         runState:"Idle",
         model:"",
-        instrumentType:"DSC"
+        instrumentType:"DSC",
+        realtimesignalsstatus:[]
       };
 
       itemService.create(instrumentInfoDict[msg]);
@@ -330,24 +332,27 @@ module.exports = function(){
       var sid = nats.subscribe(msg + '.runstate', function(runstate) {
         console.log(runstate);
 
-        instrumentInfoDict[msg].runState = runstate;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].runState = runstate;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
-        itemService.updateDB(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
 
-        itemService.requestNotification(instrumentInfoDict[msg], runstate);
+          itemService.requestNotification(instrumentInfoDict[msg], runstate);
+        }
       });
 
       //listen for real time signals
       var sid = nats.subscribe(msg + '.realtimesignalsstatus', function(response) {
-        //console.log(runstate);
+        //console.log(response);
 
         if(instrumentInfoDict[msg])
         {
-          //instrumentInfoDict[msg].realtimesignalsstatus = response;
+          instrumentInfoDict[msg].realtimesignalsstatus = JSON.parse(response);
 
           //TEMPORARILY STOP NOTIFYING REAL TIME SIGNALS
-          //itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
         }
       });
 

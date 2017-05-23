@@ -98,16 +98,16 @@ module.exports = function(){
           {
             console.log('experiments, creating experiment')
 
-            // Generate a v1 UUID (time-based) 
+            // Generate a v1 UUID (time-based)
             const uuidV1 = require('uuid/v1');
             experimentsService.runStateDictionary[heartbeat].testId = uuidV1()
 
             experimentsService.bucket.upsert(
-              experimentsService.runStateDictionary[heartbeat].testId, 
+              experimentsService.runStateDictionary[heartbeat].testId,
               {
                 setup:{ instrumentId: heartbeat},
                 points:[]
-              }, 
+              },
               function(err, result)
             {
               if(err){
@@ -133,13 +133,13 @@ module.exports = function(){
         //if we are in the middle of a test write real time signals to database
         if(experimentsService.runStateDictionary[heartbeat].runstate == "Test")
         {
-          console.log('writing real time signals to database')
+          //console.log('writing real time signals to database')
 
           experimentsService.bucket.mutateIn(experimentsService.runStateDictionary[heartbeat].testId)
-          .arrayAppend('points',JSON.parse(response),false)
+          .arrayAppend('points',{point: JSON.parse(response)},false)
           .execute(function(err, result) {
             if(err){
-              console.log('ERROR ADDING POINT!')
+              console.log('ERROR ADDING POINT:' + err)
             }
           });
 
