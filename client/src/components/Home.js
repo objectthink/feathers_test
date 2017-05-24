@@ -7,6 +7,8 @@ import SDTImage from './sdt.png'
 import TGAImage from './tga.png'
 import TRIOSImage from './trios.png'
 
+var signalCount = 0
+var signalLimit = 7
 class Home extends Component {
 
   constructor(props) {
@@ -25,6 +27,9 @@ class Home extends Component {
     this.menuSelection = this.menuSelection.bind(this);
 
     this.selectedItem = {}
+
+    this.signalLimit = 7
+    this.signalCount = 0
 
     console.log('constructed');
   }
@@ -293,12 +298,21 @@ class Home extends Component {
 
  realtimeSignalItem(signal)
  {
-    return (
-      <Table.Row>
-        <Table.Cell>{signal._name}</Table.Cell>
-        <Table.Cell>{signal._value}</Table.Cell>
-      </Table.Row>
-    );
+    if(signalCount == signalLimit)
+    {
+      return (null);
+    }
+    else
+    {
+      signalCount += 1
+
+      return (
+        <Table.Row key={signal._name}>
+          <Table.Cell>{signal._name}</Table.Cell>
+          <Table.Cell>{signal._value}</Table.Cell>
+        </Table.Row>
+      );
+    }
  }
 
  renderInstrumentPageEx()
@@ -333,6 +347,8 @@ class Home extends Component {
    {
      instrumentImage = TRIOSImage;
    }
+
+   signalCount = 0
 
    var signals = []
    signals = this.state.selectedItem.realtimesignalsstatus
