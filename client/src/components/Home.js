@@ -197,19 +197,27 @@ class Home extends Component {
 
    return (
 
-     <Card key={item.mac} >
+     <Card key={item.mac} color='orange'>
        <Card.Content>
          <Image floated='right' size='tiny' src={instrumentImage} />
          <Card.Header>
-           {item.serialnumber} ({item.mac})
+           {item.name}
          </Card.Header>
 
-         <Card.Description>
+         <Card.Header>
            {item.model}
-         </Card.Description>
+         </Card.Header>
+
+         <Card.Meta>
+          {item.serialnumber}
+         </Card.Meta>
+
+         <Card.Meta>
+          ({item.mac})
+         </Card.Meta>
 
          <Card.Description>
-           {item.location}
+          {item.location}
          </Card.Description>
 
          <Label color={labelColor}>
@@ -365,12 +373,12 @@ class Home extends Component {
             <Item.Image size='tiny' src={instrumentImage} />
 
             <Item.Content>
-              <Item.Header as='a'>{this.state.selectedItem.serialnumber}</Item.Header>
+              <Item.Header as='a'>{this.state.selectedItem.name}</Item.Header>
               <Item.Meta>{this.state.selectedItem.model}</Item.Meta>
+              <Item.Meta>{this.state.selectedItem.serialnumber}</Item.Meta>
               <Item.Description>
                 {this.state.selectedItem.location}
               </Item.Description>
-              <Item.Extra>({this.state.selectedItem.mac})</Item.Extra>
 
                 <Label color={labelColor}>
                    {this.state.selectedItem.runState}

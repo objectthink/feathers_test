@@ -252,11 +252,12 @@ module.exports = function(){
 
       instrumentInfoDict[msg] = {
         mac:msg,
-        serialnumber:"serialnumber",
-        location:"location",
-        runState:"Idle",
-        model:"",
-        instrumentType:"DSC",
+        name:"---",
+        serialnumber:"---",
+        location:"---",
+        runState:"---",
+        model:"---",
+        instrumentType:"---",
         realtimesignalsstatus:[]
       };
 
@@ -264,6 +265,19 @@ module.exports = function(){
       itemService.updateDB(msg, instrumentInfoDict[msg]);
 
       //update
+      //fecth name
+      nats.request(msg + '.get', 'name', {'max':1}, function(response) {
+        console.log('name: ' + response);
+
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].name = response;
+
+          itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
+        }
+      });
+
       //fecth location
       nats.request(msg + '.get', 'location', {'max':1}, function(response) {
         console.log('location: ' + response);
