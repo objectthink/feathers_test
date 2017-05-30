@@ -444,10 +444,15 @@ module.exports = function(){
           delete instrumentAdvertisementDict[mac];
           delete instrumentInfoDict[mac];
 
-          for(var index in instrumentSubscriptions[mac].subscriptions)
+          //for(var index in instrumentSubscriptions[mac].subscriptions)
+          //{
+          //  nats.unsubscribe(instrumentSubscriptions[mac].subscriptions[index])
+          //}
+
+          instrumentSubscriptions[mac].subscriptions.forEach(function(sid)
           {
-            nats.unsubscribe(instrumentSubscriptions[mac].subscriptions[index])
-          }
+            nats.unsubscribe(sid)
+          });
 
           delete instrumentSubscriptions[mac];
 
