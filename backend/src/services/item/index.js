@@ -79,7 +79,7 @@ class Service {
       //iterate over the tokens and check user settings
       for(var i in deviceTokens.data)
       {
-        console.log(deviceTokens.data[i].deviceToken);
+        //console.log(deviceTokens.data[i].deviceToken);
 
         itemService.requestNotificationForDeviceToken(
           item,
@@ -201,11 +201,10 @@ class Service {
     this.bucket.upsert(id, item, function(err, result)
     {
       if(err){
-
+        console.log('error updating db:' + err)
       }
       else {
-        console.log('updated instrument info:  ' + item)
-
+        //console.log('updated instrument info:  ' + item)
       }
     });
   }
@@ -247,7 +246,6 @@ module.exports = function(){
 
     if( !(msg in instrumentInfoDict))
     {
-
       console.log(msg);
 
       instrumentInfoDict[msg] = {
@@ -258,8 +256,13 @@ module.exports = function(){
         runState:"---",
         model:"---",
         instrumentType:"---",
+        procedurestatus:{},
         realtimesignalsstatus:[]
       };
+
+      instrumentSubscriptions[msg] = {
+        subscriptions:[]
+      }
 
       itemService.create(instrumentInfoDict[msg]);
       itemService.updateDB(msg, instrumentInfoDict[msg]);
@@ -336,11 +339,17 @@ module.exports = function(){
       nats.request(msg + '.get', 'instrument type', {'max':1}, function(response) {
         console.log('location: ' + response);
 
-        instrumentInfoDict[msg].instrumentType = response;
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].instrumentType = response;
 
-        itemService.update(msg, instrumentInfoDict[msg]);
-        itemService.updateDB(msg, instrumentInfoDict[msg]);
+          itemService.update(msg, instrumentInfoDict[msg]);
+          itemService.updateDB(msg, instrumentInfoDict[msg]);
+        }
       });
+
+      //TODO
+      //MAKE A NOTE OF ALL SUBSCRIPTIONS AND UNSUBSCRIBE ON HEARTBEAT LOSS
 
       //listen for run state changes
       var sid = nats.subscribe(msg + '.runstate', function(runstate) {
@@ -357,6 +366,8 @@ module.exports = function(){
         }
       });
 
+      instrumentSubscriptions[msg].subscriptions.push(sid)
+
       //listen for real time signals
       var sid = nats.subscribe(msg + '.realtimesignalsstatus', function(response) {
         //console.log(response);
@@ -366,26 +377,48 @@ module.exports = function(){
           instrumentInfoDict[msg].realtimesignalsstatus = JSON.parse(response);
 
           //TEMPORARILY STOP NOTIFYING REAL TIME SIGNALS
-          itemService.update(msg, instrumentInfoDict[msg]);
+          //itemService.update(msg, instrumentInfoDict[msg]);
         }
       });
+
+      instrumentSubscriptions[msg].subscriptions.push(sid)
 
       //listen for instrument events
       var sid = nats.subscribe(msg + '.event', function(s) {
         console.log('event:' + s);
 
-        itemService.requestNotification(instrumentInfoDict[msg], 'event:' + s);
+        if(instrumentInfoDict[msg])
+        {
+          itemService.requestNotification(instrumentInfoDict[msg], 'event:' + s);
+        }
       });
 
-      //listen for instrument errors
+      instrumentSubscriptions[msg].subscriptions.push(sid)
+
+      //listen for instrument errors - syslog
       var sid = nats.subscribe(msg + '.error', function(s) {
         console.log('error:' + s);
 
-        itemService.requestNotification(instrumentInfoDict[msg], 'error:' + s);
+        if(instrumentInfoDict[msg])
+        {
+          itemService.requestNotification(instrumentInfoDict[msg], 'log:' + s);
+        }
       });
 
-      instrumentSubscriptions[msg] = sid;
+      instrumentSubscriptions[msg].subscriptions.push(sid)
 
+      //listen for instrument procedure status as json
+      var sid = nats.subscribe(msg + '.procedurestatus', function(s) {
+        console.log('procedurestatus:' + s);
+
+        if(instrumentInfoDict[msg])
+        {
+          instrumentInfoDict[msg].procedurestatus = JSON.parse(s);
+          //itemService.requestNotification(instrumentInfoDict[msg], 'log:' + s);
+        }
+      });
+
+      instrumentSubscriptions[msg].subscriptions.push(sid)
       /////////////////
     }
 
@@ -403,7 +436,7 @@ module.exports = function(){
         //console.log(mac);
         //console.log(now - instrumentAdvertisementDict[mac]);
 
-        if( (now - instrumentAdvertisementDict[mac]) > 2000)
+        if( (now - instrumentAdvertisementDict[mac]) > 4000)
         {
           //remove stale advertisement
           console.log('removing stale heartbeat:' + mac);
@@ -411,7 +444,10 @@ module.exports = function(){
           delete instrumentAdvertisementDict[mac];
           delete instrumentInfoDict[mac];
 
-          nats.unsubscribe(instrumentSubscriptions[mac]);
+          for(var index in instrumentSubscriptions[mac].subscriptions)
+          {
+            nats.unsubscribe(instrumentSubscriptions[mac].subscriptions[index])
+          }
 
           delete instrumentSubscriptions[mac];
 
