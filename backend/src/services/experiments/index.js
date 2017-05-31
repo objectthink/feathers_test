@@ -85,7 +85,12 @@ module.exports = function(){
     //if( !(experimentsService.heartbeats.includes(heartbeat)))
     if(!(heartbeat in experimentsService.runStateDictionary))
     {
-      experimentsService.runStateDictionary[heartbeat] = {runstate:'', testId:''}
+      experimentsService.runStateDictionary[heartbeat] =
+        {
+          runstate:'',
+          testId:'',
+          error:''
+        }
 
       //listen for run state changes
       var sid = nats.subscribe(heartbeat + '.runstate', function(runstate) {
@@ -120,33 +125,24 @@ module.exports = function(){
 
           }
         }
-        //itemService.update(msg, instrumentInfoDict[msg]);
-        //itemService.updateDB(msg, instrumentInfoDict[msg]);
-
-        //itemService.requestNotification(instrumentInfoDict[msg], runstate);
       });
 
       //listen for real time signals
       var sid = nats.subscribe(heartbeat + '.realtimesignalsstatus', function(response) {
-        //console.log(runstate);
 
         //if we are in the middle of a test write real time signals to database
-        if(experimentsService.runStateDictionary[heartbeat].runstate == "Test")
+        if(experimentsService.runStateDictionary[heartbeat].runstate == "Test" &&
+           experimentsService.runStateDictionary[heartbeat].error == ''
+        )
         {
-          //console.log('writing real time signals to database')
-
           experimentsService.bucket.mutateIn(experimentsService.runStateDictionary[heartbeat].testId)
           .arrayAppend('points',{point: JSON.parse(response)},false)
           .execute(function(err, result) {
             if(err){
               console.log('ERROR ADDING POINT:' + err)
+              experimentsService.runStateDictionary[heartbeat].error = err
             }
           });
-
-          //instrumentInfoDict[msg].realtimesignalsstatus = response;
-
-          //TEMPORARILY STOP NOTIFYING REAL TIME SIGNALS
-          //itemService.update(msg, instrumentInfoDict[msg]);
         }
       });
 
