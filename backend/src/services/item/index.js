@@ -121,11 +121,14 @@ class Service {
     notification.sound = 'ping.aiff';
 
     // Display the following message (the actual notification text, supports emoji)
-    notification.title = item.serialnumber;
+    notification.title = item.name;
+    notification.subtitle = item.instrumentType;
     notification.body = aMessage;
 
+    notification.aps.threadId = item.mac;
+
     // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
-    notification.payload = {id: 123};
+    notification.payload = {instrumentId: item.mac};
 
     // Actually send the notification
     apnProvider.send(notification, deviceToken).then(function(result) {
