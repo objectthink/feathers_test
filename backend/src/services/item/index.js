@@ -101,14 +101,15 @@ class Service {
             keyId: '8AGAMF95MV', // The Key ID of the p8 file (available at https://developer.apple.com/account/ios/certificate/key)
             teamId: '6AP8DGBG6H', // The Team ID of your Apple Developer Account (available at https://developer.apple.com/account/#/membership/)
         },
-        production: false // Set to true if sending a notification to a production iOS app
+        production: true // Set to true if sending a notification to a production iOS app
     });
 
     // Prepare a new notification
     var notification = new apn.Notification();
 
     // Specify your iOS app's Bundle ID (accessible within the project editor)
-    notification.topic = 'com.objectthink.mim.demo.mim-demo';
+    notification.topic = 'com.objectthink.dev.mim';
+    //notification.topic = 'com.objectthink.mim.demo.mim-demo';
 
     // Set expiration to 1 hour from now (in case device is offline)
     notification.expiry = Math.floor(Date.now() / 1000) + 3600;
@@ -357,12 +358,16 @@ module.exports = function(){
 
         if(instrumentInfoDict[msg])
         {
-          instrumentInfoDict[msg].runState = runstate;
+          //only notify changes
+          if(instrumentInfoDict[msg].runState != runstate)
+          {
+            instrumentInfoDict[msg].runState = runstate;
 
-          itemService.update(msg, instrumentInfoDict[msg]);
-          itemService.updateDB(msg, instrumentInfoDict[msg]);
+            itemService.update(msg, instrumentInfoDict[msg]);
+            itemService.updateDB(msg, instrumentInfoDict[msg]);
 
-          itemService.requestNotification(instrumentInfoDict[msg], runstate);
+            itemService.requestNotification(instrumentInfoDict[msg], runstate);
+          }
         }
       });
 

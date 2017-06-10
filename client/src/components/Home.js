@@ -31,6 +31,8 @@ class Home extends Component {
     this.signalLimit = 7
     this.signalCount = 0
 
+    this.tableType = 'realtimesignals'
+
     console.log('constructed');
   }
 
@@ -323,6 +325,18 @@ class Home extends Component {
     }
  }
 
+ syslogItem()
+ {
+   var syslogService = socketApp.service('/instrumentMessages');
+   syslogService.find().then((data)=>{
+     console.log(data)
+   })
+ }
+
+ populateTable()
+ {
+ }
+
  renderInstrumentPageEx()
  {
    var labelColor = 'grey';
@@ -475,6 +489,7 @@ class Home extends Component {
               console.log('syslog clicked!');
               //var itemService = socketApp.service('/items');
               //itemService.find({query: {name: 'value'}});
+              this.syslogItem()
             }
           }>
         </Button>

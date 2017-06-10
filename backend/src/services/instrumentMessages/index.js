@@ -24,7 +24,7 @@ class Service {
   }
 
   find(params) {
-    return Promise.resolve([]);
+    return Promise.resolve([{name: 'stephen'}, {name: 'ann'}]);
   }
 
   get(id, params) {
@@ -76,11 +76,11 @@ module.exports = function(){
   var bucket = cluster.openBucket('syslog');
 
   /*
-  bucket.upsert('testdoc', {name:'Frank'}, function(err, result) 
+  bucket.upsert('testdoc', {name:'Frank'}, function(err, result)
   {
     if (err) throw err;
 
-    bucket.get('testdoc', function(err, result) 
+    bucket.get('testdoc', function(err, result)
     {
       if (err) throw err;
 
@@ -96,7 +96,7 @@ module.exports = function(){
 
   // Simple Subscriber
   //MSG IS INSTRUMENT ID
-  nats.subscribe('heartbeat', function(heartbeat) 
+  nats.subscribe('heartbeat', function(heartbeat)
   {
     if( !(heartbeats.includes(heartbeat)))
     {
@@ -105,18 +105,18 @@ module.exports = function(){
       heartbeats.push(heartbeat);
 
       //listen for instrument events
-      var sid = nats.subscribe(heartbeat + '.event', function(s) 
+      var sid = nats.subscribe(heartbeat + '.event', function(s)
       {
       });
 
       //listen for instrument errors
-      var sid = nats.subscribe(heartbeat + '.error', function(s) 
+      var sid = nats.subscribe(heartbeat + '.error', function(s)
       {
-        // Generate a v1 UUID (time-based) 
+        // Generate a v1 UUID (time-based)
         const uuidV1 = require('uuid/v1');
-        //uuidV1(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a' 
+        //uuidV1(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a'
 
-        bucket.upsert(uuidV1(), {message: s, from: heartbeat, when: new Date() }, function(err, result) 
+        bucket.upsert(uuidV1(), {message: s, from: heartbeat, when: new Date() }, function(err, result)
         {
           console.log('added message:  ' + s)
         });
