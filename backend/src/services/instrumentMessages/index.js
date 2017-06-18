@@ -21,6 +21,12 @@ class Service {
       console.log(path);
 
       this.app = app;
+
+      var couchbase = require('couchbase');
+      var cluster = new couchbase.Cluster('couchbase://127.0.0.1');
+      var bucket = cluster.openBucket('syslog');
+
+      this.bucket = bucket
   }
 
   find(params) {
@@ -37,6 +43,12 @@ class Service {
     if(Array.isArray(data)) {
       return Promise.all(data.map(current => this.create(current)));
     }
+
+    this.bucket.upsert(params.query.id, data, function(err, result)
+    {
+      console.log('CREATE ERR:' + err)
+      console.log('added message CREATE:  ' + data.message)
+    });
 
     return Promise.resolve(data);
   }
@@ -116,10 +128,22 @@ module.exports = function(){
         const uuidV1 = require('uuid/v1');
         //uuidV1(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a'
 
-        bucket.upsert(uuidV1(), {message: s, from: heartbeat, when: new Date() }, function(err, result)
-        {
-          console.log('added message:  ' + s)
-        });
+        //migrate to use create method 
+        //bucket.upsert(uuidV1(), {message: s, from: heartbeat, when: new Date() }, function(err, result)
+        //{
+        //  console.log('added message:  ' + s)
+        //});
+
+        instrumentMessagesService.create(
+          {
+            message: s,
+            from: heartbeat,
+            when: new Date()
+          },
+          {
+            query: {id: uuidV1()}
+          }
+        )
 
       });
     }

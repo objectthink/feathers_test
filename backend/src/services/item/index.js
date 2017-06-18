@@ -134,6 +134,11 @@ class Service {
     apnProvider.send(notification, deviceToken).then(function(result) {
         // Check the result for any failed devices
         console.log(result);
+
+        if(result.failed.length > 0)
+        {
+          console.log(result.failed);
+        }
     });
   }
 
