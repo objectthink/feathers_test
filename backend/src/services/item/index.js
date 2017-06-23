@@ -65,6 +65,75 @@ class Service {
 
   }
 
+  requestNotificationForDeviceToken(item, deviceToken, aMessage)
+  {
+    var itemService = this.app.service('/items');
+    var userSettingsService = this.app.service('/userSettings');
+
+    // get any settings for this device token ( user )
+    userSettingsService.find({query: {deviceToken: deviceToken}}).then((userSettings)=>{
+      console.log('found:' + userSettings.data.length);
+
+      //if filter is found use it otherwsie send all
+      if(userSettings.data.length == 1)
+      {
+        for(var i in userSettings.data[0].serialNumberContains)
+        {
+          console.log("   " + deviceToken);
+          console.log("   " + userSettings.data[0].serialNumberContains[i]);
+          console.log("   " + item.serialnumber);
+
+          if(item.serialnumber.includes(userSettings.data[0].serialNumberContains[i]))
+          {
+            console.log("SEND!!!")
+            itemService.sendNotificationTo(item, deviceToken, aMessage);
+
+            break;
+          }
+          else
+          {
+            console.log("DO NOT SEND!!!")
+          }
+        }
+      }
+      else
+      {
+        itemService.sendNotificationTo(item, deviceToken, aMessage);
+      }
+    });
+
+  }
+
+  requestNotificationForDeviceTokenOLD(item, deviceToken, aMessage)
+  {
+    var itemService = this.app.service('/items');
+    var userSettingsService = this.app.service('/userSettings');
+
+    // get any settings for this device token ( user )
+    userSettingsService.find({query: {deviceToken: deviceToken}}).then((userSettings)=>{
+      console.log('found:' + userSettings.data.length);
+
+      //if filter is found use it otherwsie send all
+      if(userSettings.data.length == 1)
+      {
+        if(item.serialnumber.includes(userSettings.data[0].serialNumberContains))
+        {
+          console.log("SEND!!!")
+          itemService.sendNotificationTo(item, deviceToken, aMessage);
+        }
+        else
+        {
+          console.log("DO NOT SEND!!!")
+        }
+      }
+      else
+      {
+        itemService.sendNotificationTo(item, deviceToken, aMessage);
+      }
+    });
+
+  }
+
   /*
   for all device tokens check if a user settings is available
   determine if a notification is desired based on these settings

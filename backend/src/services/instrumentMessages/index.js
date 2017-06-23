@@ -27,9 +27,26 @@ class Service {
       var bucket = cluster.openBucket('syslog');
 
       this.bucket = bucket
+      this.couchbase = couchbase
   }
 
   find(params) {
+
+    console.log(params.query)
+
+    var q = this.couchbase.N1qlQuery.fromString('select instrument_info.serialnumber, syslog.message, syslog.`when` from `syslog` syslog join `instrument_info` instrument_info on keys syslog.`from` where instrument_info.serialnumber="Halo" order by syslog.`when` desc limit 25');
+
+/*
+    this.bucket.query(q, [], function(err, rows){
+      console.log(rows)
+    })
+*/
+    console.log('query start')
+    var results = this.bucket.query(q)
+
+    console.log('query end')
+    console.log(results)
+
     return Promise.resolve([{name: 'stephen'}, {name: 'ann'}]);
   }
 
@@ -128,7 +145,7 @@ module.exports = function(){
         const uuidV1 = require('uuid/v1');
         //uuidV1(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a'
 
-        //migrate to use create method 
+        //migrate to use create method
         //bucket.upsert(uuidV1(), {message: s, from: heartbeat, when: new Date() }, function(err, result)
         //{
         //  console.log('added message:  ' + s)
