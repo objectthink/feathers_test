@@ -17,7 +17,6 @@ class Home extends Component {
     this.props.findAllItems();
 
     this.state = {
-      text: '',
       selectedItem: 'NONE',
       menuSelection: 'NONE'
     }
@@ -32,6 +31,8 @@ class Home extends Component {
     this.signalCount = 0
 
     this.tableType = 'realtimesignals'
+
+    this.page = 'MAIN'
 
     console.log('constructed');
   }
@@ -231,6 +232,7 @@ class Home extends Component {
        <Button onClick={ ()=>
            {
               console.log('click! ' + item.mac)
+              this.page = 'INFO'
               this.setState({selectedItem: item})
            }
          }>
@@ -443,6 +445,7 @@ class Home extends Component {
         <Button content='Back' icon='chevron left' labelPosition='left' onClick={()=>
             {
                console.log('click! ')
+               this.page = 'MAIN'
                this.setState({selectedItem: 'NONE'})
             }
           }>
@@ -465,8 +468,30 @@ class Home extends Component {
           }>
         </Button>
 
-        <Button content='Stop' icon='stop' labelPosition='left' />
-        <Button content='Start' icon='play' labelPosition='left' />
+        <Button content='Stop' icon='stop' labelPosition='left' onClick={()=>
+          {
+              console.log('stop clicked!');
+
+              var itemService = socketApp.service('/items');
+              itemService.update(
+                this.state.selectedItem.mac,
+                this.state.selectedItem,
+                {query: {command: 'stop', with: ''}});
+          }
+        }/>
+
+        <Button content='Start' icon='play' labelPosition='left' onClick={()=>
+          {
+              console.log('start clicked!');
+
+              var itemService = socketApp.service('/items');
+              itemService.update(
+                this.state.selectedItem.mac,
+                this.state.selectedItem,
+                {query: {command: 'start', with: ''}});
+          }
+        }/>
+
         <Button content='Control' icon='settings' labelPosition='left' onClick={()=>
             {
               console.log('control clicked!');
@@ -506,28 +531,29 @@ class Home extends Component {
 
      console.log('render called!');
      console.log(this.state.selectedItem);
+     console.log(this.page)
 
-     if(this.state.selectedItem !== 'NONE'){
-
+     //if(this.state.selectedItem !== 'NONE'){
+     if(this.page !== 'MAIN'){
        var itemService = socketApp.service('/items');
        itemService.get(this.state.selectedItem.mac).then(
          answer =>
          {
-           console.log('called get:');
+           console.log('called get:' + answer.runState);
            console.log(answer);
 
            this.selectedItem = answer
-
            this.state.selectedItem = answer;
 
-           //this.setState({selectedItem: answer});
+           this.setState({selectedItem: answer});
 
            //probably not the best way to do this
            //still poking around with react and js
            //if(answer.runState !== this.state.selectedItem.runState)
            //{
-            // this.setState({selectedItem: answer});
+           //  this.setState({selectedItem: answer});
            //}
+
          });
 
        return this.renderInstrumentPageEx();

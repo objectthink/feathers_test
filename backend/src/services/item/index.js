@@ -248,29 +248,53 @@ class Service {
   }
 
   update(id, data, params) {
-    //console.log('itemService.update');
 
     if(params)
-    if(params.query)
-    if(params.query.sendToInstrument === 'true')
     {
-      console.log('send to instrument requested: ' + params.query.which + ':' + data.location);
+      if(params.query)
+      {
 
-      nats.request(
-        data.mac + '.set.' + params.query.which,
-        data.location,
-        {'max':1},
-        function(response) {
-          console.log('update: ' + response);
+        if(params.query.sendToInstrument === 'true')
+        {
+          console.log('send to instrument requested: ' + params.query.which + ':' + data.location);
 
-          if(response === "SUCCESS")
+          nats.request(
+            data.mac + '.set.' + params.query.which,
+            data.location,
+            {'max':1},
+            function(response) {
+              console.log('update: ' + response);
+
+              if(response === "SUCCESS")
+              {
+                instrumentInfoDict[data.mac] = data;
+              }
+          });
+        }
+
+        if(params.query.command != '')
+        {
+          if(params.query.command === 'start')
           {
-            instrumentInfoDict[data.mac] = data;
+            console.log('start requested')
+
+            nats.request(id + '.action', 'start', {'max':1}, function(response) {
+              console.log('start request: ' + response);
+            });
           }
-      });
+
+          if(params.query.command === 'stop')
+          {
+            console.log('stop requested')
+
+            nats.request(id + '.action', 'stop', {'max':1}, function(response) {
+              console.log('stop request: ' + response);
+            });
+          }
+        }
+      }
     }
 
-    //console.log('itemService.update return ' + data);
     return Promise.resolve(data);
   }
 
@@ -431,13 +455,16 @@ module.exports = function(){
 
       //listen for run state changes
       var sid = nats.subscribe(msg + '.runstate', function(runstate) {
-        console.log(runstate);
+        console.log('RUNSTATE:' + runstate);
 
         if(instrumentInfoDict[msg])
         {
+          console.log('RUNSTATE2:' + runstate);
+
           //only notify changes
           if(instrumentInfoDict[msg].runState != runstate)
           {
+            console.log('RUNSTATE3:' + runstate);
             instrumentInfoDict[msg].runState = runstate;
 
             itemService.update(msg, instrumentInfoDict[msg]);
