@@ -49,7 +49,7 @@ function onSessionStarted(sessionStartedRequest, session) {
 
     /////NATS TEST
     var NATS = require('nats');
-    nats = NATS.connect("nats://34.201.47.145:4222");
+    nats = NATS.connect("nats://52.203.231.127:4222");
 
     // Simple Subscriber
     //MSG IS INSTRUMENT ID
@@ -61,16 +61,17 @@ function onSessionStarted(sessionStartedRequest, session) {
       if( !(msg in instrumentInfoDict))
       {
         console.log('got heartbeat:' + msg)
-
+        
         instrumentInfoDict[msg] = {
           mac:msg,
-          serialnumber:"serialnumber",
-          location:"location",
-          runState:"Idle",
+          serialnumber:null,
+          location:"",
+          runState:"",
           model:"",
-          instrumentType:"DSC"
+          name:null,
+          instrumentType:""
         };
-
+        
         //update
         //fecth location
         nats.request(msg + '.get', 'location', {'max':1}, function(response) {
@@ -83,6 +84,7 @@ function onSessionStarted(sessionStartedRequest, session) {
         });
 
         //fecth serial number
+        /*
         nats.request(msg + '.get', 'serial number', {'max':1}, function(response) {
           console.log('serial number: ' + response);
 
@@ -91,7 +93,17 @@ function onSessionStarted(sessionStartedRequest, session) {
             instrumentInfoDict[msg].serialnumber = response;
           }
         });
+        */
+        
+        //fecth name
+        nats.request(msg + '.get', 'name', {'max':1}, function(response) {
+          console.log('name: ' + response);
 
+          if(instrumentInfoDict[msg])
+          {
+            instrumentInfoDict[msg].name = response;
+          }
+        });
       }
     });
 }
@@ -123,9 +135,13 @@ function onIntent(intentRequest, session, callback) {
     if        (intentName == "StartAll")            {
         handleStartAllResponse(intent, session, callback)
     } else if (intentName == "StopAll")             {
-        handleStopAllResponse(intent, session, callback)
+        handleStopAllResponse(intent, session, callback)   
     } else if (intentName == "InstrumentInfo")      {
         handleInstrumentInfoResponse(intent, session, callback)
+    } else if ( intentName == "StartExperimentOn")  {
+        handleStartExperimentOn(intent, session, callback)
+    } else if ( intentName == "StopExperimentOn")  {
+        handleStopExperimentOn(intent, session, callback)
     } else if (intentName == "AMAZON.YesIntent")    {
         handleYesResponse(intent, session, callback)
     } else if (intentName == "AMAZON.NoIntent")     {
@@ -141,30 +157,105 @@ function onIntent(intentRequest, session, callback) {
     }
 }
 
+function handleStartExperimentOn(intent, session, callback) {
+
+    var speechOutput  = ""
+    var repromptText  = ""
+    var header        = "Mercury Instrument Manager"
+
+    var name = intent.slots.INSTRUMENT_NAME.value
+    var found = null
+    
+    for(var mac in instrumentInfoDict)
+    {
+        if(instrumentInfoDict[mac].name == name) 
+        {
+            found = mac
+            break
+        }
+    }
+    
+    if(found)
+    {
+        nats.publish(found + '.action', 'start');
+        speechOutput = "done";
+    }
+    else
+    {
+        speechOutput = "an instrument with that name was not found";
+    }
+    
+    var shouldEndSession = false
+
+    callback(session.attributes, buildSSMLSpeechletResponse(header, speechOutput, repromptText, shouldEndSession))
+}
+
+function handleStopExperimentOn(intent, session, callback) {
+
+    var speechOutput  = ""
+    var repromptText  = ""
+    var header        = "Mercury Instrument Manager"
+
+    var name = intent.slots.INSTRUMENT_NAME.value
+    var found = null
+    
+    for(var mac in instrumentInfoDict)
+    {
+        if(instrumentInfoDict[mac].name == name) 
+        {
+            found = mac
+            break
+        }
+    }
+    
+    if(found)
+    {
+        nats.publish(found + '.action', 'stop');
+        speechOutput = "done";
+    }
+    else
+    {
+        speechOutput = "an instrument with that name was not found";
+    }
+    
+    var shouldEndSession = false
+
+    callback(session.attributes, buildSSMLSpeechletResponse(header, speechOutput, repromptText, shouldEndSession))
+}
+
 function handleInstrumentInfoResponse(intent, session, callback) {
 
     var speechOutput  = ""
-    var repromptText  = "Are you ready"
+    var repromptText  = ""
     var header        = "Mercury Instrument Manager"
 
     for(var mac in instrumentInfoDict)
     {
-        speechOutput += instrumentInfoDict[mac].serialnumber + " location is " + instrumentInfoDict[mac].location
+        if(instrumentInfoDict[mac].name) 
+        {
+            speechOutput += instrumentInfoDict[mac].name + " location is " + instrumentInfoDict[mac].location + '<break time="1s"/>'
+        }
+        else
+        {
+            speechOutput = "that information is not ready yet";
+            break;
+        }
     }
-
+    
     var shouldEndSession = false
 
-    callback(session.attributes, buildSpeechletResponse(header, speechOutput, repromptText, shouldEndSession))
+    callback(session.attributes, buildSSMLSpeechletResponse(header, speechOutput, repromptText, shouldEndSession))
 }
 
 function handleStartAllResponse(intent, session, callback) {
 
-    var speechOutput  = "About to start all"
-    var repromptText  = "Are you ready"
+    var speechOutput  = "sorry steve, that function has been disabled so you don't mess up someones experiment"
+    var repromptText  = ""
     var header        = "Mercury Instrument Manager"
 
     var shouldEndSession = false
 
+/*
     for (var mac in instrumentInfoDict) {
         console.log('about to publish to:' + mac)
         if(nats)
@@ -172,18 +263,20 @@ function handleStartAllResponse(intent, session, callback) {
            nats.publish(mac + '.action', 'start');
         }
     }
+*/
 
     callback(session.attributes, buildSpeechletResponse(header, speechOutput, repromptText, shouldEndSession))
 }
 
 function handleStopAllResponse(intent, session, callback) {
 
-    var speechOutput  = "About to stop all"
-    var repromptText  = "Are you ready"
+    var speechOutput  = "sorry steve, i can't let you do that"
+    var repromptText  = ""
     var header        = "Mercury Instrument Manager"
 
     var shouldEndSession = false
 
+/*
     for (var mac in instrumentInfoDict) {
         console.log('about to publish to:' + mac)
         if(nats)
@@ -191,6 +284,7 @@ function handleStopAllResponse(intent, session, callback) {
            nats.publish(mac + '.action', 'stop');
         }
     }
+*/
 
     callback(session.attributes, buildSpeechletResponse(header, speechOutput, repromptText, shouldEndSession))
 }
@@ -201,7 +295,7 @@ function getWelcomeResponse(callback) {
   var speechOutput      = "Hi, I am here to help manage your enterprise connected instruments"
   var reprompt          = "Let me know when you are ready"
   var header            = "Mercury Instrument Manager"
-
+  
   var shouldEndSession  = false
 
   var sessionAttributes = {
@@ -227,7 +321,26 @@ function handleFinishSessionRequest(intent, session, callback) {
 
 
 // ------- Helper functions to build responses for Alexa -------
-
+function buildSSMLSpeechletResponse(title, output, repromptText, shouldEndSession) {
+    return {
+        outputSpeech: {
+            type: "SSML",
+            ssml: "<speak>" + output + "</speak>"
+        },
+        card: {
+            type: "Simple",
+            title: title,
+            content: output
+        },
+        reprompt: {
+            outputSpeech: {
+                type: "PlainText",
+                text: repromptText
+            }
+        },
+        shouldEndSession: shouldEndSession
+    };
+}
 
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
     return {
