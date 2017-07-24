@@ -5,6 +5,7 @@ import { socketApp } from '../store';
 import DSCImage from './dsc.png'
 import SDTImage from './sdt.png'
 import TGAImage from './tga.png'
+import NANOImage from './nano.png'
 import TRIOSImage from './trios.png'
 
 var signalCount = 0
@@ -181,7 +182,12 @@ class Home extends Component {
      labelColor = 'yellow';
    }
 
-   var instrumentImage = SDTImage;
+   var instrumentImage = NANOImage;
+
+   if(item.instrumentType === "SDT")
+   {
+     instrumentImage = SDTImage;
+   }
 
    if(item.instrumentType === "DSC")
    {
@@ -355,7 +361,12 @@ class Home extends Component {
      labelColor = 'yellow';
    }
 
-   var instrumentImage = SDTImage;
+   var instrumentImage = NANOImage;
+
+   if(this.state.selectedItem.instrumentType === "SDT")
+   {
+     instrumentImage = SDTImage;
+   }
 
    if(this.state.selectedItem.instrumentType === "DSC")
    {
